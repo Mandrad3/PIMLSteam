@@ -52,6 +52,5 @@ Además de la función principal de recomendación de películas, el proyecto ta
 
 ## Links
 
-- Repositorio (Github): [GitHub - AlejandroManrrique/Proyecto_Individual](https://github.com/AlejandroManrrique/Proyecto_Individual)
-- Deploy del Proyecto (Render):[FastAPI - Swagger UI (proyecto-individual-no1-juegos-steam.onrender.com)](https://proyecto-individual-no1-juegos-steam.onrender.com/docs)
-- Video (Youtube):https://youtu.be/gCrq1ShNo4k
+- Repositorio (Github): https://github.com/Mandrad3/PIMLSteam
+- Deploy del Proyecto (Render):https://api-juegos-piml.onrender.com/docs
