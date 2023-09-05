@@ -10,7 +10,6 @@ Este proyecto es un sistema de recomendación de juegos basado en la similitud d
 
 Los datos provienen de [PI MLOps - STEAM - Google Drive](https://drive.google.com/drive/folders/1HqBG2-sUkz_R3h1dZU5F2uAzpRn7BSpj), son 3 dataset, uno con información de las reviews, otro de items y otros con los datos de los juegos de steam.
 
-Para la limpieza de datos se desanidaron varias columnas con diccionarios, se eliminaron las columnas innecesarios, se pusieron formatos de fecha correctos, se cambiaron los tipos de datos en algunas columnas y en el df_reviews se elimino la columna reviews y se creo una nueva con un análisis de sentimiento para ver si las reseñas eran negativas positivas y neutrales. Los dataset modificados son los siguientes. [Proyecto_Individual/Data at main · AlejandroManrrique/Proyecto_Individual (github.com)](https://github.com/AlejandroManrrique/Proyecto_Individual/tree/main/Data)
 
 
 
