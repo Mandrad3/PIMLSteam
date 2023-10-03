@@ -1,4 +1,4 @@
-
+import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 
@@ -61,52 +61,51 @@ df_steam2 = pd.read_csv('./Data/steam_games.csv')
 @app.get("/recomendacion_juego/{product_id}")
 async def recomendacion_juego(product_id: int):
     try:
-        # Obtener el ID del juego
+        # Obtener el juego de referencia
         target_game = df_steam2[df_steam2['id'] == product_id]
 
         if target_game.empty:
             return {"message": "No se encontró el juego de referencia."}
 
-        # Combina las etiquetas (tags) y géneros en una sola cadena de texto
+        # Combinar etiquetas (tags) y géneros en una sola cadena de texto
         target_game_tags_and_genres = ' '.join(target_game['tags'].fillna('').astype(str) + ' ' + target_game['genres'].fillna('').astype(str))
 
-        # Crea un vectorizador TF-IDF
+        # Crear un vectorizador TF-IDF
         tfidf_vectorizer = TfidfVectorizer()
 
-        # Configura el tamaño del lote para la lectura de juegos
-        chunk_size = 100  # Tamaño del lote (puedes ajustarlo según tus necesidades)
-        similarity_scores = None
+        # Configurar el tamaño del lote para la lectura de juegos
+        chunk_size = 100  # Puedes ajustar según tus necesidades
+        similarity_scores = []
 
-        # Procesa los juegos por lotes utilizando chunks
+        # Procesar los juegos por lotes utilizando chunks
         for chunk in pd.read_csv('./Data/steam_games.csv', chunksize=chunk_size):
-            # Combina las etiquetas (tags) y géneros de los juegos en una sola cadena de texto
+            # Combinar etiquetas (tags) y géneros de los juegos en una sola cadena de texto
             chunk_tags_and_genres = ' '.join(chunk['tags'].fillna('').astype(str) + ' ' + chunk['genres'].fillna('').astype(str))
 
-            # Aplica el vectorizador TF-IDF al lote actual de juegos y al juego de referencia
-            tfidf_matrix = tfidf_vectorizer.fit_transform([target_game_tags_and_genres, chunk_tags_and_genres])
+            # Aplicar el vectorizador TF-IDF al lote actual de juegos y al juego de referencia
+            tfidf_matrix = tfidf_vectorizer.fit_transform([target_game_tags_and_genres] + [chunk_tags_and_genres])
 
-            # Calcula la similitud entre el juego de referencia y los juegos del lote actual
-            if similarity_scores is None:
-                similarity_matrix = cosine_similarity(tfidf_matrix)
-                similarity_scores = cosine_similarity(similarity_matrix, similarity_scores)
-            else:
-                similarity_matrix = cosine_similarity(tfidf_matrix)
-                similarity_scores = cosine_similarity(similarity_matrix, similarity_scores)
+            # Calcular la similitud entre el juego de referencia y los juegos del lote actual
+            similarity_matrix = cosine_similarity(tfidf_matrix)
 
-        if similarity_scores is not None:
-            # Obtiene los índices de los juegos más similares
-            similar_games_indices = similarity_scores[0].argsort()[::-1]
+            # Agregar las puntuaciones de similitud a la lista
+            similarity_scores.append(similarity_matrix[1][0])
 
-            # Recomienda los juegos más similares (puedes ajustar el número de recomendaciones)
+        if similarity_scores:
+            # Obtener los índices de los juegos más similares
+            similar_games_indices = np.argsort(similarity_scores)[::-1]
+
+            # Recomendar los juegos más similares (ajustar el número de recomendaciones según lo necesites)
             num_recommendations = 5
-            recommended_games = df_steam2.loc[similar_games_indices[1:num_recommendations + 1]]
+            recommended_games = df_steam2.loc[similar_games_indices[:num_recommendations], ['app_name', 'id']]
 
-            # Devuelve la lista de juegos recomendados
-            return recommended_games[['app_name','id']].to_dict(orient='records')
+            # Devolver la lista de juegos recomendados
+            return recommended_games.to_dict(orient='records')
 
         return {"message": "No se encontraron juegos similares."}
 
     except Exception as e:
         return {"message": f"Error: {str(e)}"}
+
 
 
